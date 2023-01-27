@@ -41,12 +41,27 @@ function RightPaneScreen() {
                 <h5 className='font-semibold'>{folder.title} </h5>
               </div>
               <div className='flex gap-4 items-center'>
-                <BiEditAlt size={'1.12em'} />
+                <BiEditAlt size={'1.12em'} onClick={() => openModal({
+                  show: true,
+                  modalType: 4,
+                  identifiers: {
+                    folderId: "",
+                    cardId: "",
+                  }
+                })} />
                 <IoTrashOutline size={'1.2em'} onClick={() => {
                   console.log("clicked");
                   deleteFolder(folderId)
                 }} />
-                <h5 className='font-semibold'>+ <span>{" "}New PlayGround</span> </h5>
+                <h5 onClick={() => openModal({
+                  show: true,
+                  modalType: 2,
+                  identifiers: {
+                    folderId: "",
+                    cardId: "",
+                  }
+                })}
+                  className='font-semibold'>+ <span>{" "}New PlayGround</span> </h5>
               </div>
             </div>
             <hr className='mb-12 mt-4 bg-black' />
@@ -55,6 +70,7 @@ function RightPaneScreen() {
                 <Card key={playgroundId} >
                   <div onClick={(e) => {
                     e.stopPropagation(); // stop click progation to parent
+                    navigate(`/playground/${folderId}/${playgroundId}`)
                   }} className='flex items-center justify-between'>
                     <div className='flex gap-4 items-center '>
                       <img src='/logo-small.png' />
@@ -67,6 +83,14 @@ function RightPaneScreen() {
                       e.stopPropagation(); // stop click progation to parent
                     }}>
                       <BiEditAlt size={'1.12em'}
+                        onClick={() => openModal({
+                          show: true,
+                          modalType: 5,
+                          identifiers: {
+                            folderId: folderId,
+                            cardId: playgroundId,
+                          }
+                        })}
                       />
                       <IoTrashOutline size={'1.2em'} onClick={() => {
                         console.log("clicked");
