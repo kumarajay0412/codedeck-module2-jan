@@ -18,7 +18,7 @@ function PlayGround() {
   const { openModal, isOpenModal, closeModal } = useContext(ModalContext);
   const { title, language, code } = folders[folderId].playgrounds[playgroundId];
 
-  const [curentCode, setCurrentCode] = useState(code);
+  const [currentCode, setCurrentCode] = useState(code);
   const [currentLanguage, setCurrentLanguage] = useState(language);
   const [currentInput, setCurrentInput] = useState("");
   const [currentOutput, setCurrentOutput] = useState("");
@@ -27,7 +27,7 @@ function PlayGround() {
   // all lofic would be here now
 
   const saveCode = () => {
-    savePlayground(folderId, playgroundId, curentCode, currentLanguage);
+    savePlayground(folderId, playgroundId, currentCode, currentLanguage);
   }
 
   const enCode = (code) => {
@@ -82,6 +82,7 @@ function PlayGround() {
   }
 
   const runCode = async () => {
+    console.log("dfjdhjdh")
     openModal({
       show: true,
       Modaltype: 6,
@@ -91,7 +92,7 @@ function PlayGround() {
       }
     });
     const language_id = languageMap[currentLanguage].id;
-    const source_code = enCode(curentCode);
+    const source_code = enCode(currentCode);
     const stdin = enCode(currentInput);
     // pass the code to the judge0 api and get the token
     const token = await postSubmission(language_id, source_code, stdin);
@@ -156,7 +157,7 @@ function PlayGround() {
             title={title}
             currentLanguage={currentLanguage}
             setCurrentLanguage={setCurrentLanguage}
-            curentCode={curentCode}
+            currentCode={currentCode}
             setCurrentCode={setCurrentCode}
             folderId={folderId}
             playgroundId={playgroundId}
