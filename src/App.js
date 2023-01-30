@@ -8,8 +8,11 @@ import ModalProvider from './Context/ModalContext';
 const SignIn = React.lazy(() => import("./Pages/SignIn"));
 const Page404 = React.lazy(() => import("./Pages/Page404"));
 function App() {
-  // const [user] = useAuthState(auth);
-  let user = "dfd"
+  const [user] = useAuthState(auth);
+  useEffect(() => {
+  }, [user])
+
+
   return (
     <Suspense>
       <PlayGroundProvider>

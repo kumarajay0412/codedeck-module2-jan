@@ -1,45 +1,41 @@
-import React from 'react'
-import CodeEditor from '../Components/PlayGround/CodeEditor'
+import React, { useContext, useState } from 'react'
 import Navbar from '../Components/PlayGround/Navbar'
-import EditContainer from '../Components/PlayGround/EditContainer'
-import InputConsole from '../Components/PlayGround/InputConsole'
-import OutputConsole from '../Components/PlayGround/OutputConsole'
-import { ModalContext } from '../Context/ModalContext'
-import { useContext } from 'react'
-import axios from 'axios'
-import { useState } from 'react'
-import { PlayGroundContext, languageMap } from '../Context/PlayGroundContext'
-import { Buffer } from 'buffer'
+import EditorContainer from '../Components/PlayGround/EditContainer'
 import { useParams } from 'react-router-dom'
+import { PlayGroundContext, languageMap } from '../Context/PlayGroundContext'
+import { ModalContext } from '../Context/ModalContext'
 import Modal from '../Components/Modal'
+import { Buffer } from 'buffer'
+import axios from 'axios'
+import InputConsole from '../Components/PlayGround/InputConsole';
+import OutputConsole from '../Components/PlayGround/OutputConsole'
 function PlayGround() {
-  const { folderId, playgroundId } = useParams();
-  const { folders, savePlayground } = useContext(PlayGroundContext);
-  const { openModal, isOpenModal, closeModal } = useContext(ModalContext);
-  const { title, language, code } = folders[folderId].playgrounds[playgroundId];
 
-  const [currentCode, setCurrentCode] = useState(code);
-  const [currentLanguage, setCurrentLanguage] = useState(language);
-  const [currentInput, setCurrentInput] = useState("");
-  const [currentOutput, setCurrentOutput] = useState("");
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const { folderId, playgroundId } = useParams()
+  const { folders, savePlayground } = useContext(PlayGroundContext)
+  const { isOpenModal, openModal, closeModal } = useContext(ModalContext)
+  const { title, language, code } = folders[folderId].playgrounds[playgroundId]
 
-  // all lofic would be here now
+  const [currentLanguage, setCurrentLanguage] = useState(language)
+  const [currentCode, setCurrentCode] = useState(code)
+  const [currentInput, setCurrentInput] = useState('')
+  const [currentOutput, setCurrentOutput] = useState('')
+  const [isFullScreen, setIsFullScreen] = useState(false)
 
+  // all logic of the playground
   const saveCode = () => {
-    savePlayground(folderId, playgroundId, currentCode, currentLanguage);
+    savePlayground(folderId, playgroundId, currentCode, currentLanguage)
   }
 
-  const enCode = (code) => {
-    return Buffer.from(code, "binary").toString('base64');
+  const encode = (str) => {
+    return Buffer.from(str, "binary").toString("base64")
   }
 
-  const deCode = (code) => {
-    return Buffer.from(code, "base64").toString();
+  const decode = (str) => {
+    return Buffer.from(str, 'base64').toString()
   }
 
   const postSubmission = async (language_id, source_code, stdin) => {
-
     const options = {
       method: 'POST',
       url: 'https://judge0-ce.p.rapidapi.com/submissions',
@@ -47,7 +43,7 @@ function PlayGround() {
       headers: {
         'content-type': 'application/json',
         'Content-Type': 'application/json',
-        'X-RapidAPI-Key': '298dc37bc4msh976681f74d3a7f2p1d7994jsn916f1cce26fe',
+        'X-RapidAPI-Key': 'b4e5c5a05fmsh9adf6ec091523f8p165338jsncc58f31c26e1',
         'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
       },
       data: JSON.stringify({
@@ -56,67 +52,68 @@ function PlayGround() {
         stdin: stdin
       })
     };
+
     const res = await axios.request(options);
-    return res.data.token;
+    return res.data.token
   }
 
-  const getSubmission = async (token) => {
-
+  const getOutput = async (token) => {
+    // we will make api call here
     const options = {
       method: 'GET',
-      url: 'https://judge0-ce.p.rapidapi.com/submissions/' + token,
+      url: "https://judge0-ce.p.rapidapi.com/submissions/" + token,
       params: { base64_encoded: 'true', fields: '*' },
       headers: {
-        'X-RapidAPI-Key': '298dc37bc4msh976681f74d3a7f2p1d7994jsn916f1cce26fe',
+        'X-RapidAPI-Key': '3ed7a75b44mshc9e28568fe0317bp17b5b2jsn6d89943165d8',
         'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com'
       }
     };
 
+    // call the api
     const res = await axios.request(options);
-
-    if (res.data.status.id <= 2) {
-      const res2 = await axios.request(options);
+    if (res.data.status_id <= 2) {
+      const res2 = await getOutput(token);
       return res2.data;
     }
     return res.data;
   }
 
   const runCode = async () => {
-    console.log("dfjdhjdh")
     openModal({
       show: true,
-      Modaltype: 6,
+      modalType: 6,
       identifiers: {
         folderId: "",
-        playgroundId: ""
+        cardId: "",
       }
-    });
+    })
     const language_id = languageMap[currentLanguage].id;
-    const source_code = enCode(currentCode);
-    const stdin = enCode(currentInput);
-    // pass the code to the judge0 api and get the token
+    const source_code = encode(currentCode);
+    const stdin = encode(currentInput);
+
+    // pass these things to Create Submissions
     const token = await postSubmission(language_id, source_code, stdin);
 
-    // get the result of the code
-    const result = await getSubmission(token);
+    // get the output
+    const res = await getOutput(token);
+    const status_name = res.status.description;
+    const decoded_output = decode(res.stdout ? res.stdout : '');
+    const decoded_compile_output = decode(res.compile_output ? res.compile_output : '');
+    const decoded_error = decode(res.stderr ? res.stderr : '');
 
-    const status_name = result.status.description;
-    const decoded_output = deCode(result.stdout ? result.stdout : "");
-    const decoded_error = deCode(result.stderr ? result.stderr : "");
-    const decoded_compile_output = deCode(result.compile_output ? result.compile_output : "");
-
-    let final_output = "";
-
-    if (result.status_id !== 3) {
-      if (decoded_compile_output !== "") {
+    let final_output = '';
+    if (res.status_id !== 3) {
+      // our code have some error
+      if (decoded_compile_output === "") {
         final_output = decoded_error;
-      } else {
-        final_output = decoded_compile_output
       }
-    } else {
+      else {
+        final_output = decoded_compile_output;
+      }
+    }
+    else {
       final_output = decoded_output;
     }
-
     setCurrentOutput(status_name + "\n\n" + final_output);
     closeModal();
   }
@@ -126,24 +123,21 @@ function PlayGround() {
     if ("files" in input && input.files.length > 0) {
       placeFileContent(input.files[0], setState);
     }
-  }
+  };
 
   const placeFileContent = (file, setState) => {
-    readFileContent(file).then(content => {
-      setState(content);
-    }).catch(error => console.log(error));
+    readFileContent(file)
+      .then((content) => {
+        setState(content)
+      })
+      .catch((error) => console.log(error));
+  };
 
-  }
-
-  const readFileContent = (file) => {
+  function readFileContent(file) {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
-      reader.onload = (event) => {
-        resolve(event.target.result);
-      };
-      reader.onerror = (error) => {
-        reject(error);
-      };
+      reader.onload = (event) => resolve(event.target.result);
+      reader.onerror = (error) => reject(error);
       reader.readAsText(file);
     });
   }
@@ -152,8 +146,8 @@ function PlayGround() {
     <div>
       <Navbar isFullScreen={isFullScreen} />
       <div className='flex flex-col lg:flex-row h-full'>
-        <div className={`${isFullScreen ? "w-full" : "w-full lg:2-3/4"}`}>
-          <EditContainer
+        <div className={`${isFullScreen ? "w-full" : "w-full lg:w-3/4 "}`}>
+          <EditorContainer
             title={title}
             currentLanguage={currentLanguage}
             setCurrentLanguage={setCurrentLanguage}
@@ -169,7 +163,8 @@ function PlayGround() {
           />
         </div>
         {
-          !isFullScreen && <div className='w-full lg:w-1/4'>
+          !isFullScreen &&
+          <div className={`w-full lg:w-1/4`}>
             <InputConsole
               currentInput={currentInput}
               setCurrentInput={setCurrentInput}
@@ -180,8 +175,10 @@ function PlayGround() {
             />
           </div>
         }
+        {isOpenModal.show && <Modal />}
       </div>
-      {isOpenModal.show && <Modal/>}
+        
+
     </div>
   )
 }

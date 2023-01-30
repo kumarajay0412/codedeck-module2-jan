@@ -7,11 +7,27 @@ import Card from '../Card';
 import { ModalContext } from '../../Context/ModalContext';
 import { PlayGroundContext } from '../../Context/PlayGroundContext';
 import { useNavigate } from 'react-router-dom';
-
+import {BiLogOut} from 'react-icons/bi'
+import {BiUserCircle} from 'react-icons/bi'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import {auth} from '../../firebaseConfig'
 function RightPaneScreen() {
+  const [user] = useAuthState(auth);
+
   const { openModal } = React.useContext(ModalContext);
   const { folders, deleteFolder, deleteCard } = React.useContext(PlayGroundContext);
   const navigate = useNavigate();
+
+  const logout = (e) => {
+    auth.signOut().then(() => {
+        window.localStorage.clear();
+        console.log("Sign-out successful.")
+    }).catch((error) => {
+        console.log(error)
+        console.log("Sign-out Unsuccessful.")
+    });
+}
+
   return (
     <div className='h-screen p-8'>
       <div className='flex justify-between placeholder:mt-8 items-center'>
@@ -29,7 +45,7 @@ function RightPaneScreen() {
           }}
 
         > <span className='font-semibold text-2xl'> +</span> New Folder</h4>
-
+        <h4> {user && <span onClick={()=>logout()} className='flex gap-2 items-center cursor-pointer'>Logout <BiLogOut/> </span>} </h4>
       </div>
       <hr className='mb-12 mt-4 bg-black' />
       {
