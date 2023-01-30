@@ -1,9 +1,11 @@
-import React from 'react'
+import React,{useContext} from 'react'
 import {RxCross1} from 'react-icons/rx'
 import { ModalContext } from '../../Context/ModalContext'
+import { PlayGroundContext } from '../../Context/PlayGroundContext'
 function NewFolder() {
     const {closeModal} = React.useContext(ModalContext)
     const [folderTitle, setFolderTitle] = React.useState('')
+    const { addFolder } = useContext(PlayGroundContext)
   return (
     <div>
         <div className='flex flex-row justify-end p-4'>
@@ -16,7 +18,10 @@ function NewFolder() {
             className='border-[.5px] text-sm border-gray rounded-lg shadow-sm p-2 w-full'
             />
             <button
-            
+            onClick={() => {
+              addFolder(folderTitle)
+              closeModal()
+            }}
             className='p-3 w-36 text-black bg-white rounded-lg font-semibold bg-darkBlue border-[0.5px border-gray shadow-lg'>
                 Create Folder
             </button>

@@ -38,8 +38,8 @@ function RightPaneScreen() {
               show: true,
               modalType: 1,
               identifiers: {
-                folderId: "null",
-                playgroundId: "null",
+                folderId: "",
+                playgroundId: "",
               }
             })
           }}
@@ -61,19 +61,18 @@ function RightPaneScreen() {
                   show: true,
                   modalType: 4,
                   identifiers: {
-                    folderId: "",
+                    folderId: folderId,
                     cardId: "",
                   }
                 })} />
                 <IoTrashOutline size={'1.2em'} onClick={() => {
-                  console.log("clicked");
                   deleteFolder(folderId)
                 }} />
                 <h5 onClick={() => openModal({
                   show: true,
                   modalType: 2,
                   identifiers: {
-                    folderId: "",
+                    folderId: folderId,
                     cardId: "",
                   }
                 })}

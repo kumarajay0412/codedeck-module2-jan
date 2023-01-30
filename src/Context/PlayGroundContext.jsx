@@ -55,15 +55,12 @@ const PlayGroundProvider = ({ children }) => {
         },
     }
 
-    const [folders, setFolders] = useState(() => {
-        let localData = localStorage.getItem('playgrounds-data');
-        if (localData === null || localData === undefined) {
-            return initialItems;
-        }
-        return JSON.parse(localData);
-    })
+    const [folders, setFolders] = useState(null)
 
     useEffect(() => {
+        console.log(folders)
+        console.log( user?.uid   )
+
         if (firstLoad && user) {
             console.log("user", user)
             const resultsRef = db.collection('userData').doc(user?.uid);
@@ -81,9 +78,6 @@ const PlayGroundProvider = ({ children }) => {
             resultsRef.set(folders ?folders: initialItems).then((response) => {
                 console.log("request updated")
             });
-        }
-        else {
-            localStorage.setItem('playgrounds-data', JSON.stringify(folders));
         }
     }, [folders, user])
 
@@ -119,7 +113,7 @@ const PlayGroundProvider = ({ children }) => {
     const addPlayground = (folderId, playgroundName, language) => {
         setFolders((oldState) => {
             const newState = { ...oldState };
-
+            console.log(folders,folderId)
             newState[folderId].playgrounds[uuid()] = {
                 title: playgroundName,
                 language: language,
