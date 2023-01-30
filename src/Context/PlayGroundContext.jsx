@@ -59,10 +59,9 @@ const PlayGroundProvider = ({ children }) => {
 
     useEffect(() => {
         console.log(folders)
-        console.log( user?.uid   )
+        console.log( user?.uid)
 
         if (firstLoad && user) {
-            console.log("user", user)
             const resultsRef = db.collection('userData').doc(user?.uid);
             resultsRef.get().then((response) => {
                 setFolders(response.data())
@@ -72,9 +71,7 @@ const PlayGroundProvider = ({ children }) => {
             });
         }
         if (user && !firstLoad) {
-            console.log(folders)
             const resultsRef = db.collection('userData').doc(user?.uid);
-
             resultsRef.set(folders ?folders: initialItems).then((response) => {
                 console.log("request updated")
             });
