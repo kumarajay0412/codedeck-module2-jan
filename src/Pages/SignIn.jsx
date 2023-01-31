@@ -7,8 +7,8 @@ import { toastArray } from "../Components/Toast";
 import { toast } from "react-toastify";
 import { auth } from '../firebaseConfig'
 import { useNavigate } from 'react-router-dom'
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
-import {FcGoogle} from 'react-icons/fc'
+import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth'
+import { FcGoogle } from 'react-icons/fc'
 function SignIn() {
 
   const navigate = useNavigate()
@@ -25,11 +25,11 @@ function SignIn() {
 
   const signInWithGoogle = () => {
     signInWithPopup(auth, googleProvider).then((result) => {
-        toast.success("SignIn Succesfull", toastArray);
+      toast.success("SignIn Succesfull", toastArray);
     }).catch((error) => {
       toast.error("error", toastArray);
     })
-}
+  }
   const onSubmit = (data) => {
     console.log(data)
     auth.signInWithEmailAndPassword(data.email, data.password)
@@ -42,6 +42,14 @@ function SignIn() {
       });
   }
 
+  const githubProvider = new GithubAuthProvider();
+  const signInWithGithub = () => {
+    signInWithPopup(auth, githubProvider).then(async (response) => {
+        console.log("response", response);
+    }).catch((err) => {
+      console.log("err", err);
+    });
+  }
 
   return (
     <div className='flex flex-col w-6/12 p-4 mx-auto justify-center'>
@@ -65,13 +73,14 @@ function SignIn() {
           control={control}
           error={errors?.password?.message}
           required
-        />     
-        
+        />
+
       </form>
       <button type='submit' form='hook-form' className='w-full border-2 bg-white p-3 mt-8 font-semibold shadow-lg rounded-lg'> Sign In </button>
-      <button onClick={signInWithGoogle} form='hook-form' className='w-full border-2 bg-white p-3 mt-8 font-semibold shadow-lg rounded-lg text-center flex justify-center'> <span className="flex items-center gap-3"><FcGoogle style={{fontSize:"2rem"}}/> Sign In with Google</span> </button>
+      <button onClick={signInWithGoogle} form='hook-form' className='w-full border-2 bg-white p-3 mt-8 font-semibold shadow-lg rounded-lg text-center flex justify-center'> <span className="flex items-center gap-3"><FcGoogle style={{ fontSize: "2rem" }} /> Sign In with Google</span> </button>
+      <button onClick={signInWithGithub} form='hook-form' className='w-full border-2 bg-white p-3 mt-8 font-semibold shadow-lg rounded-lg text-center flex justify-center'> <span className="flex items-center gap-3"><FcGoogle style={{ fontSize: "2rem" }} /> Sign In with Google</span> </button>
 
-      <h5 className='mt-4'>Don't have an account ?<span className='text-primaryLight mx-2 underline cursor-pointer' onClick={()=>{navigate("/signup")}}>SignUp</span></h5>
+      <h5 className='mt-4'>Don't have an account ?<span className='text-primaryLight mx-2 underline cursor-pointer' onClick={() => { navigate("/signup") }}>SignUp</span></h5>
 
     </div>
   )
